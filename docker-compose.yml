@@ -1,0 +1,34 @@
+version: '3.9'
+#services describe the containers that will start
+services:
+  #api is the container name for our Go API
+  bookstore-web:
+    image: bookstore/web
+    # It will look for a dockerfile in the project root and build it
+    build: 
+      context: "./web-server"
+      args:
+        SERVER_PORT: 5000
+        DB_SERVER: dbserver
+        NIC_NAME: eth0
+    # If the container goes down it will restart
+    restart: "always"
+    # Connects the API to a common bks-back.network bridge
+    networks:
+      - "bks-back.network"
+    # Starts up 5 replicas of the same image
+    deploy:
+      replicas: 1
+  bookstore-db:
+    hostname: dbserver
+    image: bookstore/db
+    # It will look for a dockerfile in the project root and build it
+    build: 
+      context: "./db-server"
+    # If the container goes down it will restart
+    restart: "always"
+    # Connects the API to a common bks-back.network bridge
+    networks:
+      - "bks-back.network"
+networks:
+  bks-back.network: {}
