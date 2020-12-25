@@ -34,7 +34,7 @@ func main() {
 
 	flag.Parse()
 
-	queries.DBConnectionStr = fmt.Sprintf("ro_user@%v:ro_aldu@tcp(%v)/booksdb", *dbaddr, *dbaddr)
+	queries.DBConnectionStr = fmt.Sprintf("ro_user:ro_aldu@tcp(%v)/booksdb", *dbaddr)
 
 	// registers handleHello to GET /hello
 	r := mux.NewRouter()

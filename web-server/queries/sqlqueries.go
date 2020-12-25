@@ -24,14 +24,17 @@ func SQLQueryBook(id uint64) (*Book, error) {
 	db, err := openDB()
 	if err != nil {
 		fmt.Println("Cannot open database")
-		panic(err.Error())
+		return nil, err
 	}
 	sql, err := db.Begin()
 
+	if err != nil {
+		return nil, err
+	}
 	err = sql.QueryRow("SELECT ID,TITLE,YEAR,AUTHORS,DESCR,SIZE,IMG_PATH FROM BOOKS WHERE ID=?", id).Scan(&book.ID, &book.Title, &book.Year, &book.Descr, &book.Authors, &book.Size, &book.ImgPath)
 	if err != nil {
 		//something go wrong with database
-		panic(err.Error())
+		return nil, err
 	}
 
 	defer db.Close()
