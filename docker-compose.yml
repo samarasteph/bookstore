@@ -13,6 +13,8 @@ services:
         NIC_NAME: eth0
     # If the container goes down it will restart
     restart: "always"
+    depends_on: 
+      - bookstore-db
     # Connects the API to a common bks-back.network bridge
     networks:
       - "bks-back.network"
@@ -25,6 +27,11 @@ services:
     # It will look for a dockerfile in the project root and build it
     build: 
       context: "./db-server"
+      args:
+        RW_USER: rw-user
+        RO_USER: ro-user
+        RW_PWD: aldu
+        RO_PWD: aldu
     # If the container goes down it will restart
     restart: "always"
     # Connects the API to a common bks-back.network bridge

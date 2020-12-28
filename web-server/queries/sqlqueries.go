@@ -6,14 +6,27 @@ import (
 	"database/sql"
 	"fmt"
 
+	// import mysql driver
 	_ "github.com/go-sql-driver/mysql"
 )
 
-var DBConnectionStr string
+// DBServerName database server name: initialized in main.go
+var DBServerName string
 
-func openDB() (*sql.DB, error) {
+func openDB(user string) (*sql.DB, error) {
+
+	passwd, exists := GetUserCred(user)
+
+	if !exists {
+		return nil, fmt.Errorf("Database user \"(%v\") not found", user)
+	}
+	connexionString := fmt.Sprintf("%v:%v@tcp(%v)/booksdb", user, passwd, DBServerName)
 	//DBConnectionStr patemeter to connect to database (temporary)
-	return sql.Open("mysql", DBConnectionStr)
+	return sql.Open("mysql", connexionString)
+}
+
+func openDBReadOnly() (*sql.DB, error) {
+	return openDB("ro-user")
 }
 
 //SQLQueryBook extract Book from database and return JSON serializable Book object
@@ -21,7 +34,7 @@ func SQLQueryBook(id uint64) (*Book, error) {
 
 	var book Book
 
-	db, err := openDB()
+	db, err := openDBReadOnly()
 	if err != nil {
 		fmt.Println("Cannot open database")
 		return nil, err
@@ -47,7 +60,7 @@ func SQLQueryBookLink(bookid uint64) (*BookLink, error) {
 
 	var booklink BookLink
 
-	db, err := openDB()
+	db, err := openDBReadOnly()
 	if err != nil {
 		return nil, err
 	}
@@ -72,7 +85,7 @@ func SQLQueryBookLink(bookid uint64) (*BookLink, error) {
 func SQLQueryBookSubjects(bookid uint64) (*BookSubjectAssocList, error) {
 
 	var subjects BookSubjectAssocList
-	db, err := openDB()
+	db, err := openDBReadOnly()
 
 	if err != nil {
 		return nil, err
@@ -111,7 +124,7 @@ func SQLQueryBookSubjects(bookid uint64) (*BookSubjectAssocList, error) {
 func SQLQueryPage(pageNumber uint64, nbItems uint64) (*[]BookTitle, error) {
 	var pages []BookTitle
 
-	db, err := openDB()
+	db, err := openDBReadOnly()
 	if err != nil {
 		return nil, err
 	}
@@ -143,7 +156,7 @@ func SQLQueryPage(pageNumber uint64, nbItems uint64) (*[]BookTitle, error) {
 //SQLQueryDeleteBook delete book and associated database data
 func SQLQueryDeleteBook(bookID uint64) error {
 
-	db, err := openDB()
+	db, err := openDBReadOnly()
 	if err != nil {
 		return err
 	}
@@ -171,7 +184,7 @@ func SQLQueryDeleteBook(bookID uint64) error {
 
 //SQLQuerySubjects returns subjects list
 func SQLQuerySubjects() (*[]ItSubject, error) {
-	db, err := openDB()
+	db, err := openDBReadOnly()
 	if err != nil {
 		return nil, err
 	}

@@ -34,7 +34,10 @@ func main() {
 
 	flag.Parse()
 
-	queries.DBConnectionStr = fmt.Sprintf("ro_user:ro_aldu@tcp(%v)/booksdb", *dbaddr)
+	queries.AddUser("rw-user", "aldu")
+	queries.AddUser("ro-user", "aldu")
+
+	queries.DBServerName = *dbaddr
 
 	// registers handleHello to GET /hello
 	r := mux.NewRouter()
@@ -50,7 +53,7 @@ func main() {
 
 	listAddr := *addr + ":" + strconv.Itoa(*port)
 	fmt.Println("Server listening on " + listAddr + "...")
-	fmt.Println("Database connection=" + queries.DBConnectionStr)
+	fmt.Println("Database server=" + queries.DBServerName)
 
 	srv := &http.Server{
 		Handler: r,
