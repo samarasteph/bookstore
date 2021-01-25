@@ -1,0 +1,4 @@
+# The PAM configuration file for `mariadb' service
+
+auth required pam_unix.so audit
+account required pam_unix.so audit
