@@ -1,4 +1,4 @@
-FROM mariadb/server AS db-stage
+FROM mariadb AS db-stage
 
 LABEL name="database-server"
 LABEL Production="true"
